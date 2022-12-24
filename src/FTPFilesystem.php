@@ -31,14 +31,14 @@ class FTPFilesystem
     public function directoryExists(string $path): bool
     {
         /** @phpstan-ignore-next-line */
-        $prevDir = ftp_pwd($this->connection);
+        $prevDir = @ftp_pwd($this->connection);
         if ($prevDir === false) {
             throw new LogicException("FTP PWD command error");
         }
         /** @phpstan-ignore-next-line */
-        $result = ftp_chdir($this->connection, $path);
+        $result = @ftp_chdir($this->connection, $path);
         /** @phpstan-ignore-next-line */
-        ftp_chdir($this->connection, $prevDir);
+        @ftp_chdir($this->connection, $prevDir);
         return $result;
     }
 
