@@ -206,4 +206,44 @@ class FilesystemFTPRepositoryTest extends TestCase
         /** @var FileInterface $fileMock */
         $this->assertTrue($repo->update($fileMock, "new content new content"));
     }
+
+    public function testCreateOrUpdateWith(): void
+    {
+        /** @var MockObject $fl */
+        $fl = $this->filesystem;
+        $fl->expects($this->once())->method("write")
+            ->with("/folder/folder2/folder3/file.txt", "content");
+        $repo = new FilesystemFTPRepository($this->filesystem);
+
+        $this->assertTrue($repo->createOrUpdate("/folder/folder2/folder3/file.txt", "content"));
+    }
+
+    public function testGetContentByFilenameWithExistsFile(): void
+    {
+        /** @var MockObject $fl */
+        $fl = $this->filesystem;
+        $fl->expects($this->once())->method("fileExists")
+            ->with("/sync-file.data")
+            ->willReturn(true);
+        $fl->expects($this->once())->method("read")
+            ->with("/sync-file.data")
+            ->willReturn("content");
+
+        $repo = new FilesystemFTPRepository($this->filesystem);
+
+        $this->assertEquals("content", $repo->getContentByFilename("/sync-file.data"));
+    }
+
+    public function testGetContentByFilenameWithNotExistsFile(): void
+    {
+        /** @var MockObject $fl */
+        $fl = $this->filesystem;
+        $fl->expects($this->once())->method("fileExists")
+            ->with("/sync-file.data")
+            ->willReturn(false);
+
+        $repo = new FilesystemFTPRepository($this->filesystem);
+
+        $this->assertNull($repo->getContentByFilename("/sync-file.data"));
+    }
 }
